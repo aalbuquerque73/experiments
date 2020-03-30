@@ -1,4 +1,7 @@
 import { doError } from './error';
+import { initProgramInfo } from './shaders';
+import { initBuffers } from './buffers';
+import { drawScene } from './render';
 
 //
 // start here
@@ -18,6 +21,11 @@ function main() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
+
+    const programInfo = initProgramInfo(gl, ['aVertexPosition'], ['uProjectionMatrix', 'uModelViewMatrix'])
+    const buffers = initBuffers(gl);
+    
+    drawScene(gl, programInfo, buffers);
 }
   
   window.onload = main;
