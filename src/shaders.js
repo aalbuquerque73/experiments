@@ -3,35 +3,37 @@ import { doError } from './error';
 // Vertex shader program
 export const vsSource = `
 attribute vec4 aVertexPosition;
+attribute vec4 aVertexColor;
 
 uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
 
+varying lowp vec4 vColor;
+
 void main() {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vColor = aVertexColor;
 }
 `;
 
 export const fsSource = `
-    void main() {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    }
+varying lowp vec4 vColor;
+
+void main() {
+    gl_FragColor = vColor;
+}
 `;
 
 export function initProgramInfo(gl, attributes = [], uniforms = []) {
     const program = initShaderProgram(gl, vsSource, fsSource);
     const info = {
         program,
-        attribLocations: {
-            vertexPosition: gl.getAttribLocation(program, 'aVertexPosition'),
-        },
-        uniformLocations: {
-            projectionMatrix: gl.getUniformLocation(program, 'uProjectionMatrix'),
-            modelViewMatrix: gl.getUniformLocation(program, 'uModelViewMatrix'),
-        },
+        attribLocations: {},
+        uniformLocations: {},
     };
     attributes.forEach(attr => info.attribLocations[nameOf(attr)] = gl.getAttribLocation(program, attr));
     uniforms.forEach(uni => info.uniformLocations[nameOf(uni)] = gl.getUniformLocation(program, uni));
+    console.log(info)
     return info;
 }
 
@@ -63,10 +65,10 @@ export function initShaderProgram(gl, vsSource, fsSource) {
     return shaderProgram;
   }
   
-  //
-  // creates a shader of the given type, uploads the source and
-  // compiles it.
-  //
+//
+// creates a shader of the given type, uploads the source and
+// compiles it.
+//
 export function loadShader(gl, type, source) {
     const shader = gl.createShader(type);
   

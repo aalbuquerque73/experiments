@@ -22,7 +22,7 @@ function main() {
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const programInfo = initProgramInfo(gl, ['aVertexPosition'], ['uProjectionMatrix', 'uModelViewMatrix'])
+    const programInfo = initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix'])
     const buffers = initBuffers(gl);
     
     drawScene(gl, programInfo, buffers);
