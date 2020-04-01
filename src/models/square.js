@@ -18,6 +18,11 @@ export function initBuffers(gl) {
     return {
       position: positionBuffer,
       color: colorBuffer,
+      components: {
+        position: 2,
+        color: 4,
+      },
+      count: 4,
     };
 }
 

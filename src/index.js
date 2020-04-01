@@ -1,6 +1,6 @@
 import { doError } from './error';
 import { initProgramInfo } from './shaders';
-import { initBuffers } from './buffers';
+import { initBuffers } from './models/cube';
 import { drawScene } from './render';
 import { Engine } from './engine';
 import { ObservableDelta } from './observable-delta';
@@ -30,14 +30,19 @@ function main() {
     const engine = new Engine(gl);
     const time = new ObservableDelta(0)
         .map(value => value * 0.001);
-    requestAnimationFrame(now => render(now, time, engine, gl, programInfo, buffers));
+    requestAnimationFrame(now => render(gl, now, time, programInfo, buffers, engine));
 }
 
-function render(now, time, engine, ...args) {
+function render(gl, now, time, programInfo, buffers, engine) {
     time(now);
-    drawScene(...args, engine);
-    engine.update(time.delta);
-    requestAnimationFrame(now => render(now, time, engine, ...args));
+    drawScene(gl, programInfo, buffers, engine);
+    if (buffers.indices) {
+        engine.rotate([0, 0, 1]);
+        engine.update(time.delta, [0, 1, 0]);
+    } else {
+        engine.update(time.delta);
+    }
+    requestAnimationFrame(now => render(gl, now, time, programInfo, buffers, engine));
 }
 
 window.onload = main;

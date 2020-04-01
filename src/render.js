@@ -13,7 +13,6 @@ export function drawScene(gl, programInfo, buffers, engine) {
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute.
     {
-        const numComponents = 2;  // pull out 2 values per iteration
         const type = gl.FLOAT;    // the data in the buffer is 32bit floats
         const normalize = false;  // don't normalize
         const stride = 0;         // how many bytes to get from one set of values to the next
@@ -22,7 +21,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
         gl.vertexAttribPointer(
             programInfo.attribLocations.vertexPosition,
-            numComponents,
+            buffers.components.position,
             type,
             normalize,
             stride,
@@ -36,7 +35,6 @@ export function drawScene(gl, programInfo, buffers, engine) {
     // Tell WebGL how to pull out the colors from the color buffer
     // into the vertexColor attribute.
     {
-        const numComponents = 4;
         const type = gl.FLOAT;
         const normalize = false;
         const stride = 0;
@@ -44,7 +42,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
         gl.bindBuffer(gl.ARRAY_BUFFER, buffers.color);
         gl.vertexAttribPointer(
             programInfo.attribLocations.vertexColor,
-            numComponents,
+            buffers.components.color,
             type,
             normalize,
             stride,
@@ -53,6 +51,10 @@ export function drawScene(gl, programInfo, buffers, engine) {
         gl.enableVertexAttribArray(
             programInfo.attribLocations.vertexColor
         );
+    }
+    
+    if (buffers.indices) {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
     }
   
     // Tell WebGL to use our program when drawing
@@ -71,8 +73,12 @@ export function drawScene(gl, programInfo, buffers, engine) {
     );
   
     {
-      const offset = 0;
-      const vertexCount = 4;
-      gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+        const offset = 0;
+        if (buffers.indices) {
+            const type = gl.UNSIGNED_SHORT;
+            gl.drawElements(gl.TRIANGLES, buffers.count, type, offset);
+        } else {
+            gl.drawArrays(gl.TRIANGLE_STRIP, offset, buffers.count);
+        }
     }
 }

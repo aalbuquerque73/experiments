@@ -9,9 +9,10 @@ export function Engine(gl) {
     return {
         projection,
         modelView,
-        update(...args) {
-            rotation.rotate();
-            rotation.update(...args);
+        rotate: rotation.rotate,
+        update(delta, axis) {
+            rotation.rotate(axis);
+            rotation.update(delta);
         }
     };
 }
