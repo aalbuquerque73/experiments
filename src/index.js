@@ -2,6 +2,8 @@ import { doError } from './error';
 import { initProgramInfo } from './shaders';
 import { initBuffers } from './buffers';
 import { drawScene } from './render';
+import { Engine } from './engine';
+import { ObservableDelta } from './observable-delta';
 
 //
 // start here
@@ -25,7 +27,17 @@ function main() {
     const programInfo = initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix'])
     const buffers = initBuffers(gl);
     
-    drawScene(gl, programInfo, buffers);
+    const engine = new Engine(gl);
+    const time = new ObservableDelta(0)
+        .map(value => value * 0.001);
+    requestAnimationFrame(now => render(now, time, engine, gl, programInfo, buffers));
 }
-  
-  window.onload = main;
+
+function render(now, time, engine, ...args) {
+    time(now);
+    drawScene(...args, engine);
+    engine.update(time.delta);
+    requestAnimationFrame(now => render(now, time, engine, ...args));
+}
+
+window.onload = main;
