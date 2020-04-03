@@ -1,0 +1,43 @@
+{
+    "name": "developer",
+    "version": "1.0.0",
+    "description": "",
+    "main": "dev",
+    "scripts": {
+        "start": "parcel watch server/src/index.html -d server/public --public-url /",
+        "build": "parcel build server/src/index.html -d server/public --public-url / --detailed-report --no-source-maps",
+        "test": "tap",
+        "cov": "nyc npm test",
+        "tape": "node test | tap-html"
+    },
+    "author": "Americo Albuquerque <americo.albuquerque@transportlead.com>",
+    "license": "ISC",
+    "dependencies": {
+        "ansi_up": "^4.0.4",
+        "ansicolor": "^1.1.93",
+        "ansicolors": "^0.3.2",
+        "blessed": "^0.1.81",
+        "blessed-contrib": "^4.8.18",
+        "debug": "^4.1.1",
+        "js-yaml": "^3.13.1",
+        "lowdb": "^1.0.0",
+        "mithril": "^2.0.4",
+        "request": "^2.88.2",
+        "reusify": "^1.0.4",
+        "socket.io": "^2.3.0",
+        "socket.io-client": "^2.3.0",
+        "spectre.css": "^0.5.8",
+        "underscore": "^1.9.2"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.8.4",
+        "@babel/plugin-proposal-class-properties": "^7.8.3",
+        "autoprefixer": "^9.7.4",
+        "browser-sync": "^2.26.7",
+        "glob": "^7.1.6",
+        "parcel-bundler": "^1.12.4",
+        "sass": "^1.25.0",
+        "sinon": "^9.0.0",
+        "tap": "^14.10.6"
+    }
+}
