@@ -24,8 +24,33 @@ void main() {
 }
 `;
 
-export function initProgramInfo(gl, attributes = [], uniforms = []) {
-    const program = initShaderProgram(gl, vsSource, fsSource);
+// Vertex shader program
+export const vsSourceWithTexture = `
+attribute vec4 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+uniform mat4 uModelViewMatrix;
+uniform mat4 uProjectionMatrix;
+
+varying highp vec2 vTextureCoord;
+
+void main() {
+    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vTextureCoord = aTextureCoord;
+}
+`;
+
+export const fsSourceWithTexture = `
+varying highp vec2 vTextureCoord;
+uniform sampler2D uSampler;
+
+void main() {
+    gl_FragColor = texture2D(uSampler, vTextureCoord);
+}
+`;
+
+export function initProgramInfo(gl, attributes = [], uniforms = [], vs = vsSource, fs = fsSource) {
+    const program = initShaderProgram(gl, vs, fs);
     const info = {
         program,
         attribLocations: {},

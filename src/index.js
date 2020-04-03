@@ -1,6 +1,6 @@
 import { doError } from './error';
-import { initProgramInfo } from './shaders';
-import { initBuffers } from './models/cube';
+import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture } from './shaders';
+import { initBuffers } from './models/textured-cube';
 import { drawScene } from './render';
 import { Engine } from './engine';
 import { ObservableDelta } from './observable-delta';
@@ -24,8 +24,10 @@ function main() {
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const programInfo = initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix'])
     const buffers = initBuffers(gl);
+    const programInfo = buffers.texture 
+        ? initProgramInfo(gl, ['aVertexPosition', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uSampler'], vsSourceWithTexture, fsSourceWithTexture)
+        : initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix']);
     
     const engine = new Engine(gl);
     const time = new ObservableDelta(0)

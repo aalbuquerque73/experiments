@@ -34,7 +34,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
 
     // Tell WebGL how to pull out the colors from the color buffer
     // into the vertexColor attribute.
-    {
+    if (programInfo.attribLocations.vertexColor) {
         const type = gl.FLOAT;
         const normalize = false;
         const stride = 0;
@@ -51,6 +51,29 @@ export function drawScene(gl, programInfo, buffers, engine) {
         gl.enableVertexAttribArray(
             programInfo.attribLocations.vertexColor
         );
+    }
+
+    // tell webgl how to pull out the texture coordinates from buffer
+    if (programInfo.attribLocations.textureCoord) {
+        const num = 2; // every coordinate composed of 2 values
+        const type = gl.FLOAT; // the data in the buffer is 32 bit float
+        const normalize = false; // don't normalize
+        const stride = 0; // how many bytes to get from one set to the next
+        const offset = 0; // how many bytes inside the buffer to start from
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord);
+        gl.vertexAttribPointer(programInfo.attribLocations.textureCoord, num, type, normalize, stride, offset);
+        gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+    }
+
+    if (programInfo.uniformLocations.sampler) {
+        // Tell WebGL we want to affect texture unit 0
+        gl.activeTexture(gl.TEXTURE0);
+
+        // Bind the texture to texture unit 0
+        gl.bindTexture(gl.TEXTURE_2D, buffers.texture);
+
+        // Tell the shader we bound the texture to texture unit 0
+        gl.uniform1i(programInfo.uniformLocations.sampler, 0);
     }
     
     if (buffers.indices) {
