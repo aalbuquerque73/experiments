@@ -58,6 +58,7 @@ export function loadTexture(gl, url) {
         }
     };
     image.src = url;
+    document.body.appendChild(image);
 
     return texture;
 }

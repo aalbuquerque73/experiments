@@ -1,9 +1,11 @@
 import { doError } from './error';
-import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture } from './shaders';
-import { initBuffers } from './models/textured-cube';
+import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture, vsSourceWithNormals, fsSourceWithNormals } from './shaders';
+import { model } from './models/textured-cube-normals';
+import { initBuffers } from './models/model';
 import { drawScene } from './render';
 import { Engine } from './engine';
 import { ObservableDelta } from './observable-delta';
+import WebGLDebugUtils from './webgl-debug';
 
 //
 // start here
@@ -11,6 +13,7 @@ import { ObservableDelta } from './observable-delta';
 function main() {
     const canvas = document.querySelector("#glCanvas");
     // Initialize the GL context
+    // const gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"), undefined, logGLCall);
     const gl = canvas.getContext("webgl");
   
     // Only continue if WebGL is available and working
@@ -24,9 +27,11 @@ function main() {
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const buffers = initBuffers(gl);
+    const buffers = initBuffers(gl, model);
     const programInfo = buffers.texture 
-        ? initProgramInfo(gl, ['aVertexPosition', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uSampler'], vsSourceWithTexture, fsSourceWithTexture)
+        ? buffers.normals
+            ? initProgramInfo(gl, ['aVertexPosition', 'aVertexNormal', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uNormalMatrix', 'uSampler'], vsSourceWithNormals, fsSourceWithNormals)
+            : initProgramInfo(gl, ['aVertexPosition', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uSampler'], vsSourceWithTexture, fsSourceWithTexture)
         : initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix']);
     
     const engine = new Engine(gl);
@@ -48,3 +53,8 @@ function render(gl, now, time, programInfo, buffers, engine) {
 }
 
 window.onload = main;
+
+function logGLCall(functionName, args) {   
+    console.log("gl." + functionName + "(" + 
+    WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");   
+} 

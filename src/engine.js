@@ -4,15 +4,19 @@ import { Animation } from './animation';
 export function Engine(gl) {
     const projection = createProjectionMatrix(gl);
     const modelView = createModelViewMatrix();
+    const normal = createNormalMatrix(modelView);
     const rotation = new Animation(modelView, modelView);
 
     return {
         projection,
         modelView,
+        normal,
         rotate: rotation.rotate,
         update(delta, axis) {
             rotation.rotate(axis);
             rotation.update(delta);
+            mat4.invert(normal, modelView);
+            mat4.transpose(normal, normal);
         }
     };
 }
@@ -59,4 +63,11 @@ function createModelViewMatrix() {
     ;  // amount to translate
 
     return modelViewMatrix;
+}
+
+function createNormalMatrix(modelViewMatrix) {
+    const normalMatrix = mat4.create();
+    mat4.invert(normalMatrix, modelViewMatrix);
+    mat4.transpose(normalMatrix, normalMatrix);
+    return normalMatrix;
 }

@@ -1,13 +1,4 @@
 import image from './cubetexture.png';
-
-const faceColors = [
-    [1.0,  1.0,  1.0,  1.0],    // Front face: white
-    [1.0,  0.0,  0.0,  1.0],    // Back face: red
-    [0.0,  1.0,  0.0,  1.0],    // Top face: green
-    [0.0,  0.0,  1.0,  1.0],    // Bottom face: blue
-    [1.0,  1.0,  0.0,  1.0],    // Right face: yellow
-    [1.0,  0.0,  1.0,  1.0],    // Left face: purple
-];
     
 export const model = {
     vertices: [
@@ -55,7 +46,43 @@ export const model = {
         16, 17, 18,     16, 18, 19,   // right
         20, 21, 22,     20, 22, 23,   // left
     ],
-    colors: faceColors.reduce((current, c) => current.concat(c, c, c, c), []),
+    normals: [
+        // Front
+         0.0,  0.0,  1.0,
+         0.0,  0.0,  1.0,
+         0.0,  0.0,  1.0,
+         0.0,  0.0,  1.0,
+    
+        // Back
+         0.0,  0.0, -1.0,
+         0.0,  0.0, -1.0,
+         0.0,  0.0, -1.0,
+         0.0,  0.0, -1.0,
+    
+        // Top
+         0.0,  1.0,  0.0,
+         0.0,  1.0,  0.0,
+         0.0,  1.0,  0.0,
+         0.0,  1.0,  0.0,
+    
+        // Bottom
+         0.0, -1.0,  0.0,
+         0.0, -1.0,  0.0,
+         0.0, -1.0,  0.0,
+         0.0, -1.0,  0.0,
+    
+        // Right
+         1.0,  0.0,  0.0,
+         1.0,  0.0,  0.0,
+         1.0,  0.0,  0.0,
+         1.0,  0.0,  0.0,
+    
+        // Left
+        -1.0,  0.0,  0.0,
+        -1.0,  0.0,  0.0,
+        -1.0,  0.0,  0.0,
+        -1.0,  0.0,  0.0
+    ],
     textureCoords: [
         // Front
         0.0,  0.0,
@@ -91,7 +118,6 @@ export const model = {
     image,
     sizes: {
         vertices: 3,
-        colors: 4,
     },
     count: 36,
 };
