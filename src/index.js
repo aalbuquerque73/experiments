@@ -1,9 +1,15 @@
+import $ from 'jquery';
 import { doError } from './error';
 import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture, vsSourceWithNormals, fsSourceWithNormals } from './shaders';
-import { model } from './models/video-cube';
+import { model as cubeWithVideo } from './models/video-cube';
+import { model as cubeWithNormals } from './models/textured-cube-normals';
+import { model as cubeWithTexture } from './models/textured-cube';
+import { model as cube } from './models/cube';
+import { model as square } from './models/square';
 import { initBuffers } from './models/model';
 import { drawScene } from './render';
 import { Engine } from './engine';
+import { Observable } from './observable';
 import { ObservableDelta } from './observable-delta';
 import WebGLDebugUtils from './webgl-debug';
 import { updateTexture } from './models/texture';
@@ -12,6 +18,18 @@ import { updateTexture } from './models/texture';
 // start here
 //
 function main() {
+    const list = { cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, square };
+    const model = new Observable();
+
+    $('.navbar-section').on('click', 'a', (ev) => {
+        const selected = list[$(ev.target).attr('data-text')];
+        if (selected) {
+            $('.navbar-section a.btn-primary').toggleClass('btn-primary', false);
+            model(selected);
+            $(ev.target).toggleClass('btn-primary', true);
+        }
+    })
+
     const canvas = document.querySelector("#glCanvas");
     // Initialize the GL context
     // const gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"), undefined, logGLCall);
@@ -28,14 +46,23 @@ function main() {
     // Clear the color buffer with specified clear color
     gl.clear(gl.COLOR_BUFFER_BIT);
 
-    const buffers = initBuffers(gl, model);
-    const programInfo = buffers.texture 
-        ? buffers.normals
-            ? initProgramInfo(gl, ['aVertexPosition', 'aVertexNormal', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uNormalMatrix', 'uSampler'], vsSourceWithNormals, fsSourceWithNormals)
-            : initProgramInfo(gl, ['aVertexPosition', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uSampler'], vsSourceWithTexture, fsSourceWithTexture)
-        : initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix']);
-    
+    const buffers = new Observable()
+        .filter(value => value && Array.isArray(value.vertices))
+        .map(value => initBuffers(gl, value));
+    model.each(value => buffers(value));
+
+    const programInfo = new Observable()
+        .filter(value => value && value.vertices instanceof WebGLBuffer)
+        .map(value => value.normals ? initProgramInfo(gl, ['aVertexPosition', 'aVertexNormal', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uNormalMatrix', 'uSampler'], vsSourceWithNormals, fsSourceWithNormals) : value)
+        .map(value => value.texture ? initProgramInfo(gl, ['aVertexPosition', 'aTextureCoord'], ['uProjectionMatrix', 'uModelViewMatrix', 'uSampler'], vsSourceWithTexture, fsSourceWithTexture) : value)
+        .map(value => !value.program ? initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix']) : value);
+    buffers.each(value => programInfo(value));
+
+    model(cubeWithVideo);
+
     const engine = new Engine(gl);
+    programInfo.each(engine.reset);
+
     const time = new ObservableDelta(0)
         .map(value => value * 0.001);
     requestAnimationFrame(now => render(gl, now, time, programInfo, buffers, engine));
@@ -43,15 +70,17 @@ function main() {
 
 function render(gl, now, time, programInfo, buffers, engine) {
     time(now);
-    if (buffers.canUpdate.value) {
-        updateTexture(gl, buffers.texture, buffers.video);
-    }
-    drawScene(gl, programInfo, buffers, engine);
-    if (buffers.indices) {
-        engine.rotate([0, 0, 1]);
-        engine.update(time.delta, [0, 1, 0]);
-    } else {
-        engine.update(time.delta);
+    if (programInfo.value) {
+        if (buffers.value.canUpdate.value) {
+            updateTexture(gl, buffers.value.texture, buffers.value.video);
+        }
+        drawScene(gl, programInfo.value, buffers.value, engine);
+        if (buffers.value.indices) {
+            engine.rotate([0, 0, 1]);
+            engine.update(time.delta, [0, 1, 0]);
+        } else {
+            engine.update(time.delta);
+        }
     }
     requestAnimationFrame(now => render(gl, now, time, programInfo, buffers, engine));
 }

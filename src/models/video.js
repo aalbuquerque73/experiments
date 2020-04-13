@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { Observable } from '../observable';
 
 export function setupVideo(url) {
@@ -10,16 +11,16 @@ export function setupVideo(url) {
     const canUpdate = Observable.compose(playing, timeupdate)
         .map(value => value.every(v => v));
 
-    video.autoplay = false;
+    video.autoplay = true;
     video.muted = true;
-    video.loop = false;
+    video.loop = true;
 
     video.addEventListener('playing', playing);
     video.addEventListener('timeupdate', timeupdate);
 
     video.src = url;
     video.play();
-    document.body.appendChild(video);
+    $('#image').empty().append(video);
 
     return { 
         canUpdate,

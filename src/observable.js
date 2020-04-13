@@ -1,6 +1,7 @@
 
 export class Observable {
     constructor(value, factory = () => true) {
+        this._disposables = [];
         this._subscribers = [];
         this._valueMappers = [];
         this._mappers = [];
@@ -28,10 +29,9 @@ export class Observable {
         this.defineProperty(res, 'subscribe', { value: (...args) => this.subscribe(...args), enumerable: true });
         this.defineProperty(res, 'map', { value: (...args) => this.map(res, ...args), enumerable: true });
         this.defineProperty(res, 'each', { value: (...args) => this.each(res, ...args), enumerable: true });
-        this.defineProperty(res, 'filter', { value: (...args) => this.filter(...args), enumerable: true });
-        this.defineProperty(res, 'history', { value: (...args) => this.history(...args), enumerable: true });
+        this.defineProperty(res, 'filter', { value: (...args) => this.filter(res, ...args), enumerable: true });
         this.defineProperty(res, 'clone', { value: () => this.clone(), enumerable: true });
-        this.defineProperty(res, 'call', { value: (...args) => this.callable(res, args), enumerable: true });
+        this.defineProperty(res, 'dispose', { value: () => this.dispose(), enumerable: true });
         this.defineProperty(res, 'toString', { value: () => this.toString() });
         this.defineProperty(res, 'notify', { value: (...args) => this.notify(res, ...args) });
         return res;
@@ -79,78 +79,6 @@ export class Observable {
         return res;
     }
 
-    history(limit = 0) {
-        const history = [this._value];
-        let index = 0;
-        let navigating = false;
-        const push = (value) => {
-            if (!navigating) {
-                history.push(value);
-                if (limit > 0) {
-                    history.splice(0, history.length - limit);
-                }
-            }
-        };
-        const observable = new Observable(this._value, (observable) => {
-            observable._filters = observable._filters.concat(this._filters);
-            observable._afterFilters = observable._afterFilters.concat(this._afterFilters);
-            observable._mappers = observable._mappers.concat(this._mappers);
-            observable._valueMappers = observable._valueMappers.concat(this._valueMappers);
-            observable._subscribers = observable._subscribers.concat(this._subscribers);
-            observable._mappers
-                .push((value, oldValue) => (!navigating ? this._mappers.reduce((current, map) => map(current, oldValue), value) : value));
-            observable._filters.push(value => (!navigating ? this._filters.reduce((current, filter) => current && filter(value), true) : true));
-            observable._subscribers.push(push);
-            observable._subscribers.push(() => (!navigating ? index = history.length - 1 : null));
-            observable._subscribers.push(() => navigating = false);
-        });
-        Object.defineProperty(observable, 'prev', {
-            value() {
-                navigating = true;
-                if (index > 0) {
-                    index -= 1;
-                }
-                observable(history[index]);
-                return this;
-            },
-            enumerable: true,
-        });
-        Object.defineProperty(observable, 'next', {
-            value() {
-                navigating = true;
-                if (index < history.length - 1) {
-                    index += 1;
-                }
-                observable(history[index]);
-                return this;
-            },
-            enumerable: true,
-        });
-        Object.defineProperty(observable, 'first', {
-            value() {
-                navigating = true;
-                if (index > 0) {
-                    index = 0;
-                }
-                observable(history[index]);
-                return this;
-            },
-            enumerable: true,
-        });
-        Object.defineProperty(observable, 'last', {
-            value() {
-                navigating = true;
-                if (index < history.length - 1) {
-                    index = history.length - 1;
-                }
-                observable(history[index]);
-                return this;
-            },
-            enumerable: true,
-        });
-        return observable;
-    }
-
     clone() {
         const reISO = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.{0,1}\d*))(?:Z|(\+|-)([\d|:]*))?$/;
         const parser = (key, value) => {
@@ -172,11 +100,10 @@ export class Observable {
         });
     }
 
-    callable(res, args) {
-        if (typeof this._value === 'function') {
-            this._value(...args);
-        }
-        return res;
+    dispose() {
+        this._disposables
+            .filter(observer => typeof observer === 'function')
+            .forEach(dispose => dispose());
     }
 
     notify(res, value, oldValue) {
@@ -210,14 +137,14 @@ Observable.unwrap = function (observable, map = item => item, key = null) {
     return observable;
 };
 
-Observable.compose = (...args) => new Observable(null, (observable, res) => {
-    const pendingArgs = args.map(item => ({ newValue: item.value, oldValue: item.value }));
-    args.map((observable, index) => observable.subscribe((newValue, oldValue) => pendingArgs[index] = ({ newValue, oldValue })));
-    const notify = () => {
-        const newValues = pendingArgs.map(arg => arg.newValue);
-        const oldValues = pendingArgs.map(arg => arg.oldValue);
-        observable._subscribers.forEach(observer => observer(newValues, oldValues));
+Observable.compose = (...args) => new Observable(args.map(item => item.value), (observable, res) => {
+    const subscriber = () => res(args.map(item => item.value));
+    args.forEach(partial => observable._disposables.push(partial.subscribe(subscriber)));
+    const mapper = (map, forValue) => {
+        if (!forValue) {
+            observable._value = map(observable._value);
+        }
+        return observable.map(res, map, forValue);
     };
-    Object.defineProperty(res, 'value', { get: () => args.map(item => item.value), enumerable: true });
-    Object.defineProperty(res, 'notify', { value: notify });
+    Object.defineProperty(res, 'map', { value: mapper, enumerable: true });
 });

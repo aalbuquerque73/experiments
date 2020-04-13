@@ -4,8 +4,29 @@
         <meta charset="utf-8">
         <title><%= htmlWebpackPlugin.options.title %></title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+        <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
     </head>
     <body>
-        <canvas id="glCanvas" width="640" height="480"></canvas>
+        <div class="panel">
+            <div class="panel-nav navbar">
+                <section class="navbar-section">
+                    <a class="btn mr-2 btn-primary" data-text="cubeWithVideo">Cube with Video</a>
+                    <a class="btn mr-2" data-text="cubeWithNormals">Cube with Normals</a>
+                    <a class="btn mr-2" data-text="cubeWithTexture">Cube with Texture</a>
+                    <a class="btn mr-2" data-text="cube">Cube</a>
+                    <a class="btn mr-2" data-text="square">Square</a>
+                </section>
+            </div>
+            <div class="panel-body columns">
+                <div class="card column col-6">
+                    <div class="card-body text-center"><canvas class="mt-2" id="glCanvas" width="640" height="480"></canvas></div>
+                </div>
+                <div class="card column col-6">
+                    <div class="card-body text-center" id="image"></div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>

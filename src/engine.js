@@ -17,6 +17,10 @@ export function Engine(gl) {
             rotation.update(delta);
             mat4.invert(normal, modelView);
             mat4.transpose(normal, normal);
+        },
+        reset() {
+            mat4.identity(modelView);
+            mat4.translate(modelView, modelView, [0.0, 0.0, -6.0]);
         }
     };
 }
@@ -59,8 +63,8 @@ function createModelViewMatrix() {
     mat4.translate(
         modelViewMatrix,     // destination matrix
         modelViewMatrix,     // matrix to translate
-        [-0.0, 0.0, -6.0])
-    ;  // amount to translate
+        [0.0, 0.0, -6.0]     // amount to translate
+    );  
 
     return modelViewMatrix;
 }
