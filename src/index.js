@@ -1,11 +1,12 @@
 import { doError } from './error';
 import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture, vsSourceWithNormals, fsSourceWithNormals } from './shaders';
-import { model } from './models/textured-cube-normals';
+import { model } from './models/video-cube';
 import { initBuffers } from './models/model';
 import { drawScene } from './render';
 import { Engine } from './engine';
 import { ObservableDelta } from './observable-delta';
 import WebGLDebugUtils from './webgl-debug';
+import { updateTexture } from './models/texture';
 
 //
 // start here
@@ -42,6 +43,9 @@ function main() {
 
 function render(gl, now, time, programInfo, buffers, engine) {
     time(now);
+    if (buffers.canUpdate.value) {
+        updateTexture(gl, buffers.texture, buffers.video);
+    }
     drawScene(gl, programInfo, buffers, engine);
     if (buffers.indices) {
         engine.rotate([0, 0, 1]);

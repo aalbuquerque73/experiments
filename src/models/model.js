@@ -1,9 +1,14 @@
-import { loadTexture } from './texture';
+import { createTexture, updateTexture } from './texture';
+import { setupImage } from './image';
+import { setupVideo } from './video';
 
 export function initBuffers(gl, model) {
     const bufferInfo = {
         sizes: model.sizes,
         count: model.count,
+        canUpdate: {
+            value: false,
+        },
     };
     if (model.vertices) {
         bufferInfo.vertices = createBuffer(gl, model.vertices);
@@ -21,7 +26,14 @@ export function initBuffers(gl, model) {
         bufferInfo.textureCoords = createBuffer(gl, model.textureCoords);
     }
     if (model.image) {
-        bufferInfo.texture = loadTexture(gl, model.image);
+        bufferInfo.texture = createTexture(gl);
+        setupImage(model.image, image => updateTexture(gl, bufferInfo.texture, image));
+    }
+    if (model.video) {
+        bufferInfo.texture = createTexture(gl);
+        const video = setupVideo(model.video);
+        bufferInfo.video = video.video;
+        bufferInfo.canUpdate = video.canUpdate;
     }
   
     return bufferInfo;
