@@ -5,6 +5,8 @@ import { model as cubeWithVideo } from './models/video-cube';
 import { model as cubeWithNormals } from './models/textured-cube-normals';
 import { model as cubeWithTexture } from './models/textured-cube';
 import { model as cube } from './models/cube';
+import { model as squareWithTexture } from './models/textured-square';
+import { model as squareWithVideo } from './models/video-square';
 import { model as square } from './models/square';
 import { initBuffers } from './models/model';
 import { drawScene } from './render';
@@ -18,10 +20,10 @@ import { updateTexture } from './models/texture';
 // start here
 //
 function main() {
-    const list = { cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, square };
+    const list = { cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, squareWithVideo, squareWithTexture, square };
     const model = new Observable();
 
-    $('.navbar-section').on('click', 'a', (ev) => {
+    $('.nav').on('click', 'a', (ev) => {
         const selected = list[$(ev.target).attr('data-text')];
         if (selected) {
             $('.navbar-section a.btn-primary').toggleClass('btn-primary', false);
