@@ -34,14 +34,23 @@ module.exports = {
                     test: /[\\/]node_modules[\\/]/,
                     // cacheGroupKey here is `commons` as the key of the cacheGroup
                     name(module, chunks, cacheGroupKey) {
-                        const moduleFileName = path.basename(module.identifier(), '.js');
                         const allChunksNames = chunks.map((item) => item.name).join('~');
-                        return `${cacheGroupKey}-${allChunksNames}-${moduleFileName}`;
+                        return `${cacheGroupKey}-${allChunksNames}`;
                     },
+                    priority: -10,
+                    reuseExistingChunk: true,
                     chunks: 'all'
                 },
                 json: {
                     test: (module) => module.resource && module.resource.endsWith('.json'),
+                    priority: -10,
+                    reuseExistingChunk: true,
+                    chunks: 'all',
+                },
+                svg: {
+                    test: (module) => module.resource && module.resource.endsWith('.svg'),
+                    priority: -10,
+                    reuseExistingChunk: true,
                     chunks: 'all',
                 }
             }
