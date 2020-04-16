@@ -23,6 +23,10 @@ export function setupVideo(url) {
     $('#image').empty().append(video);
 
     return { 
+        dispose() {
+            video.removeEventListener('playing', playing);
+            video.removeEventListener('timeupdate', timeupdate);
+        },
         canUpdate,
         video,
     };

@@ -2,7 +2,19 @@ import { createTexture, updateTexture } from './texture';
 import { setupImage } from './image';
 import { setupVideo } from './video';
 
+const disposables = [];
+function toDispose(disposable) {
+    if (typeof disposable === 'function' ) {
+        disposables.push(disposable);
+    }
+}
+function dispose() {
+    disposables.forEach(dispose => dispose());
+    disposables.length = 0;
+}
+
 export function initBuffers(gl, model) {
+    dispose();
     const bufferInfo = {
         sizes: model.sizes,
         count: model.count,
@@ -32,6 +44,7 @@ export function initBuffers(gl, model) {
     if (model.video) {
         bufferInfo.texture = createTexture(gl);
         const video = setupVideo(model.video);
+        toDispose(video.dispose);
         bufferInfo.video = video.video;
         bufferInfo.canUpdate = video.canUpdate;
     }

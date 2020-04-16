@@ -1,6 +1,8 @@
 import $ from 'jquery';
 import { doError } from './error';
 import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture, vsSourceWithNormals, fsSourceWithNormals } from './shaders';
+import { model as sphereWithVideo } from './models/video-sphere';
+import { model as sphereWithTexture } from './models/textured-sphere';
 import { model as sphere } from './models/sphere';
 import { model as cubeWithVideo } from './models/video-cube';
 import { model as cubeWithNormals } from './models/textured-cube-normals';
@@ -21,7 +23,7 @@ import { updateTexture } from './models/texture';
 // start here
 //
 function main() {
-    const list = { sphere, cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, squareWithVideo, squareWithTexture, square };
+    const list = { sphereWithVideo, sphereWithTexture, sphere, cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, squareWithVideo, squareWithTexture, square };
     const model = new Observable();
 
     $('.nav').on('click', 'a', (ev) => {
