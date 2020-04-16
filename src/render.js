@@ -5,11 +5,11 @@ export function drawScene(gl, programInfo, buffers, engine) {
     gl.clearDepth(1.0);                 // Clear everything
     gl.enable(gl.DEPTH_TEST);           // Enable depth testing
     gl.depthFunc(gl.LEQUAL);            // Near things obscure far things
-  
+
     // Clear the canvas before we start drawing on it.
-  
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  
+
     // Tell WebGL how to pull out the positions from the position
     // buffer into the vertexPosition attribute.
     {
@@ -50,7 +50,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
         );
         gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
     }
-    
+
     if (buffers.indices) {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
     }
@@ -85,7 +85,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
         gl.vertexAttribPointer(programInfo.attribLocations.textureCoord, num, type, normalize, stride, offset);
         gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
     }
-  
+
     // Tell WebGL to use our program when drawing
     gl.useProgram(programInfo.program);
 
@@ -99,7 +99,7 @@ export function drawScene(gl, programInfo, buffers, engine) {
         // Tell the shader we bound the texture to texture unit 0
         gl.uniform1i(programInfo.uniformLocations.sampler, 0);
     }
-  
+
     // Set the shader uniforms
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.projectionMatrix,
@@ -118,12 +118,11 @@ export function drawScene(gl, programInfo, buffers, engine) {
             engine.normal
         );
     }
-  
+
     {
         const offset = 0;
         if (buffers.indices) {
-            const type = gl.UNSIGNED_SHORT;
-            gl.drawElements(gl.TRIANGLES, buffers.count, type, offset);
+            gl.drawElements(gl.TRIANGLES, buffers.count, gl.UNSIGNED_SHORT, offset);
         } else {
             gl.drawArrays(gl.TRIANGLE_STRIP, offset, buffers.count);
         }

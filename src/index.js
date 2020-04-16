@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import { doError } from './error';
 import { initProgramInfo, vsSourceWithTexture, fsSourceWithTexture, vsSourceWithNormals, fsSourceWithNormals } from './shaders';
+import { model as sphere } from './models/sphere';
 import { model as cubeWithVideo } from './models/video-cube';
 import { model as cubeWithNormals } from './models/textured-cube-normals';
 import { model as cubeWithTexture } from './models/textured-cube';
@@ -20,15 +21,15 @@ import { updateTexture } from './models/texture';
 // start here
 //
 function main() {
-    const list = { cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, squareWithVideo, squareWithTexture, square };
+    const list = { sphere, cubeWithVideo, cubeWithNormals, cubeWithTexture, cube, squareWithVideo, squareWithTexture, square };
     const model = new Observable();
 
     $('.nav').on('click', 'a', (ev) => {
         const selected = list[$(ev.target).attr('data-text')];
         if (selected) {
-            $('.navbar-section a.btn-primary').toggleClass('btn-primary', false);
+            $('.nav a.active').toggleClass('active', false);
             model(selected);
-            $(ev.target).toggleClass('btn-primary', true);
+            $(ev.target).toggleClass('active', true);
         }
     })
 
@@ -36,13 +37,13 @@ function main() {
     // Initialize the GL context
     // const gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"), undefined, logGLCall);
     const gl = canvas.getContext("webgl");
-  
+
     // Only continue if WebGL is available and working
     if (gl === null) {
         doError('Unable to initialize WebGL. Your browser or machine may not support it.');
         return;
     }
-  
+
     // Set clear color to black, fully opaque
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     // Clear the color buffer with specified clear color
@@ -60,7 +61,7 @@ function main() {
         .map(value => !value.program ? initProgramInfo(gl, ['aVertexPosition', 'aVertexColor'], ['uProjectionMatrix', 'uModelViewMatrix']) : value);
     buffers.each(value => programInfo(value));
 
-    model(cubeWithVideo);
+    model(list[$('.nav a.active').attr('data-text')]);
 
     const engine = new Engine(gl);
     programInfo.each(engine.reset);
@@ -89,7 +90,7 @@ function render(gl, now, time, programInfo, buffers, engine) {
 
 window.onload = main;
 
-function logGLCall(functionName, args) {   
-    console.log("gl." + functionName + "(" + 
-    WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");   
-} 
+function logGLCall(functionName, args) {
+    console.log("gl." + functionName + "(" +
+    WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
+}
